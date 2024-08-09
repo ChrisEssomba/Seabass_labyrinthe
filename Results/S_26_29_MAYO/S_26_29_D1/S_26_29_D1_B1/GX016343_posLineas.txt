@@ -1,0 +1,4 @@
+Line 0, Coordinates : (1794, 449, 1907, 450)
+Line 1, Coordinates : (1363, 793, 1696, 793)
+Line 2, Coordinates : (1226, 1166, 1576, 1178)
+Line 3, Coordinates : (1338, 1533, 1650, 1549)
