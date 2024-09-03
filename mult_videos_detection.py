@@ -148,7 +148,8 @@ for video_path in video_paths:
     total_frames = int(video.get(cv.CAP_PROP_FRAME_COUNT))
 
     # Calculate the middle frame index
-    middle_frame_index = total_frames // 2 +100
+    #middle_frame_index = total_frames // 2 +100
+    middle_frame_index =0
     
     #Initialize the dictionary that'll contain the id and the zone of the first seabass that will this one
     zones_written = {}
