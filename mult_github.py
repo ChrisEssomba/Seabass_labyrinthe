@@ -146,8 +146,8 @@ for video_path in video_paths:
     total_frames = int(video.get(cv.CAP_PROP_FRAME_COUNT))
  
     # Calculate the middle frame index
-    middle_frame_index = total_frames // 2 +100
-    #middle_frame_index = 0
+    #middle_frame_index = total_frames // 2 +100
+    middle_frame_index = 0
     
     #Initialize the dictionary that'll contain the id and the zone of the first seabass that will this one
     zones_written = {}
@@ -242,7 +242,7 @@ for video_path in video_paths:
             bottle_file.write(f"{x_bottle},{y_bottle},{width_bottle+x_bottle},{height_bottle+y_bottle},{bottle_time}\n")
             
         angle = line_angle(x_bottle, y_bottle, width_bottle+x_bottle, height_bottle+y_bottle)
-        print(angle)
+        #print(angle)
         
         #Bottle coordinates
         x_min_bottle, y_min_bottle, x_max_bottle, y_max_bottle = x_bottle, y_bottle, x_bottle +width_bottle, y_bottle +height_bottle
