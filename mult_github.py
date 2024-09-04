@@ -10,7 +10,7 @@ import gc
 # The function that calculates the angle of a line based on this coordinates
 def line_angle(x1, y1, x2, y2):
     return np.degrees(np.arctan2(y2 - y1, x2 - x1))
- 
+  
 # The function that extract a certain frame from a video
 def extract_frame(video, frame_number):
     if not video.isOpened():
