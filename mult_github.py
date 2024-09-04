@@ -103,9 +103,9 @@ def format_time(seconds):
     if seconds >= 60:
         minutes = seconds // 60
         seconds = seconds % 60
-        return f"{int(minutes)}:{seconds:.2f}s"
+        return f"{int(minutes)}:{seconds:.2f}"
     else:
-        return f"{seconds:.2f}s"
+        return f"{seconds:.2f}"
  
  
  
@@ -232,6 +232,8 @@ for video_path in video_paths:
                 bottle=True
             else:
                 middle_frame_index-=fps
+            if middle_frame_index<0:
+                break
         
         if cool:
             bottle_file.write(f"Coordenadas de la botella\n")
