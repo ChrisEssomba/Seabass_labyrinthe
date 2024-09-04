@@ -120,7 +120,7 @@ base_path_to_replace = "L:\\ENVIROBASS_NOE\\TESTS\\APRENDIZAJE"
 current_dir = os.getcwd()
  
 # Read video paths from links.txt
-with open("video_paths2.txt", "r") as file:
+with open("video_paths.txt", "r") as file:
     video_paths = [line.strip() for line in file.readlines()]
  
 for video_path in video_paths:
@@ -134,7 +134,9 @@ for video_path in video_paths:
     video_path = os.path.join(current_dir, relative_path)
  
     # Load the YOLO model and video
-    model = YOLO("D:/FutureExpertData/Computervision/best.pt")
+    # Load the YOLO model and video
+    model = YOLO("C:/Users/GAMMA_43/Documents/lubinas/best.pt")
+    model=model.to('cuda')
  
     # Extract the directory path and video name from the video_path
     video_dir = os.path.dirname(video_path)
@@ -148,8 +150,8 @@ for video_path in video_paths:
     total_frames = int(video.get(cv.CAP_PROP_FRAME_COUNT))
  
     # Calculate the middle frame index
-    #middle_frame_index = total_frames // 2 +100
-    middle_frame_index = 0
+    middle_frame_index = total_frames // 2 +100
+    #middle_frame_index = 0
     
     #Initialize the dictionary that'll contain the id and the zone of the first seabass that will this one
     zones_written = {}
@@ -170,6 +172,8 @@ for video_path in video_paths:
     current_zone=0
     formatted_time=0
     cool = False
+    bottle=False
+    bottle_time=0
     stop=False
    
     # Define paths for output files
@@ -200,12 +204,6 @@ for video_path in video_paths:
  
             # Get the coordintates of the bottle from the middle frame
             position = detect_blue_cap(middle_frame, x1_tank, width)
-           
-            #I handle the case where the bottle first shows up
-            if position: 
-                #Get the time the bottle shows up
-                time = middle_frame_index/fps
-                ftime = format_time(time)
 
             if len(delimitation_lines) !=4 or not position :
                 middle_frame_index+= 1
@@ -224,12 +222,21 @@ for video_path in video_paths:
                 break
        
    
-   
+        #Know when the bottle is first seen
+        while bottle==False:
+            middle_frame = extract_frame(video, middle_frame_index)
+            position = detect_blue_cap(middle_frame, x1_tank, width)
+            if not position:
+                bottle_time= middle_frame_index/fps
+                bottle_time = format_time(bottle_time)
+                bottle=True
+            else:
+                middle_frame_index-=fps
         
         if cool:
             bottle_file.write(f"Coordenadas de la botella\n")
             bottle_file.write(f"xmin,ymin,xmax,ymax,time\n")
-            bottle_file.write(f"{x_bottle},{y_bottle},{width_bottle+x_bottle},{height_bottle+y_bottle},{ftime}\n")
+            bottle_file.write(f"{x_bottle},{y_bottle},{width_bottle+x_bottle},{height_bottle+y_bottle},{bottle_time}\n")
             
         angle = line_angle(x_bottle, y_bottle, width_bottle+x_bottle, height_bottle+y_bottle)
         print(angle)
@@ -272,7 +279,9 @@ for video_path in video_paths:
                 # Ensure frame sizes are consistent
                 if frame.shape != prev_frame.shape:
                     print(f"Frame size mismatch: {frame.shape} vs {prev_frame.shape}")
-                    model = YOLO("D:/FutureExpertData/Computervision/best.pt")
+                    # Load the YOLO model and video
+                    model = YOLO("C:/Users/GAMMA_43/Documents/lubinas/best.pt")
+                    model=model.to('cuda')
                     continue
     
         
@@ -431,7 +440,7 @@ for video_path in video_paths:
     
             #Display the frame
             frame = cv.resize(frame, (880, 624))
-            cv.imshow('Lines', frame)
+            #cv.imshow('Lines', frame)
     
         
         
