@@ -127,7 +127,7 @@ for video_path in video_paths:
     video = cv.VideoCapture(video_path)
     if not video.isOpened():
         print(f"Error opening video file {video_path}")
-        Not_Launched_file.write(f"{video_path}\n")
+        Not_Launched_file.write(f"El programa no pudo leer el video : {video_path}\n")
         continue
     # Replace the base part of the path
     relative_path = video_path.replace(base_path_to_replace, '').strip("\\")
@@ -218,6 +218,7 @@ for video_path in video_paths:
  
                 cool=True
             if middle_frame_index >= total_frames:
+                Not_Launched_file.write(f"El programa no ha encontrado la botella en el video : {video_path}\n")
                 print("Bottle not detected")
                 break
        
