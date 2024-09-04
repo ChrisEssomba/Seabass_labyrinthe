@@ -110,12 +110,13 @@ def format_time(seconds):
  
  
 # Load the YOLO model and video
-model = YOLO("D:/FutureExpertData/Computervision/best.pt")
+model = YOLO("C:/Users/GAMMA_43/Documents/lubinas/best.pt")
+model=model.to('cuda')
  
 # Open the video file
 #video = cv.VideoCapture("D:\FutureExpertData\Computervision\GX016355.MP4")
 #video = cv.VideoCapture("D:/FutureExpertData/Computervision/GX016355.MP4")
-video = cv.VideoCapture("E:\privado\daniel\GX016343.MP4")
+video = cv.VideoCapture("L:\ENVIROBASS_NOE\TESTS\APRENDIZAJE\S_26_29_MAYO\S_26_29_D1\S_26_29_D1_B1\GX016343.MP4")
 #video = cv.VideoCapture("D:/FutureExpertData/Computervision/GX016450.MP4")
 #video = cv.VideoCapture("F:\ENVIROBASS_NOE\TESTS\APRENDIZAJE\S_26_29_MAYO\S_26_29_D1\S_26_29_D1_B3\GX016349.MP4")
         
@@ -153,7 +154,9 @@ time=0
 formatted_time=0
 current_zone=0
 cool = False
- 
+bottle=False
+bottle_time=0
+
 frame_width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
 frame_height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
 fourcc = cv.VideoWriter_fourcc(*'XVID')
@@ -193,7 +196,6 @@ with open("zone_transitions.txt", "w") as zones_file, \
             if len(delimitation_lines) !=4 or not position :
                 middle_frame_index+= 1
             else:
-
                 #write the lines positions
                 for index, line in delimitation_lines.iterrows():    
                     lines_file.write(f"Line {index}, Coordinates : ({line['x1']}, {line['y1']}, {line['x2']}, {line['y2']})\n")
@@ -205,15 +207,24 @@ with open("zone_transitions.txt", "w") as zones_file, \
             if middle_frame_index >= total_frames:
                 print("Bottle not detected")
                 break
+    
+    #Know where the bottle is first saw
+    while bottle==False:
+        middle_frame = extract_frame(video, middle_frame_index)
+        position = detect_blue_cap(middle_frame, x1_tank, width)
+        if not position:
+            bottle_time= middle_frame_index/fps
+            bottle_time = format_time(bottle_time)
+            bottle=True
+        else:
+            middle_frame_index-=fps
        
-   
-   
        
     if cool:
         bottle_file.write(f"Coordenadas de la botella\n")
         bottle_file.write(f"xmin,ymin,xmax,ymax,time\n")
-        bottle_file.write(f"{x_bottle},{y_bottle},{width_bottle+x_bottle},{height_bottle+y_bottle},{ftime}\n")
-        
+        bottle_file.write(f"{x_bottle},{y_bottle},{width_bottle+x_bottle},{height_bottle+y_bottle},{bottle_time}\n")
+   
     angle = line_angle(x_bottle, y_bottle, width_bottle+x_bottle, height_bottle+y_bottle)
     print(angle)
     
@@ -255,7 +266,8 @@ with open("zone_transitions.txt", "w") as zones_file, \
             # Ensure frame sizes are consistent
             if frame.shape != prev_frame.shape:
                 print(f"Frame size mismatch: {frame.shape} vs {prev_frame.shape}")
-                model = YOLO("D:/FutureExpertData/Computervision/best.pt")
+                model = YOLO("C:/Users/GAMMA_43/Documents/lubinas/best.pt")
+                model=model.to('cuda')
                 continue
    
        
@@ -282,7 +294,7 @@ with open("zone_transitions.txt", "w") as zones_file, \
  
         # Write in a file the current index frame
         boxes_file.write(f"Frame {index_frame} \n")
-        box_file.write(f"Frame {index_frame} \n")
+  
  
         # Go through the variable that contains the bounding boxes while retrieving their ids, coordinates and confidence levels
         for idx, box in enumerate(boxes):
@@ -311,7 +323,6 @@ with open("zone_transitions.txt", "w") as zones_file, \
             if confidence > 0.55:
                 # Write down in a file the bounding box coordinates
                 boxes_file.write(f"x_min={xmin},y_min={ymin},x_max={xmax},y_max={ymax}\n")
-                box_file.write(f"ID={{idx}},x_min={xmin},y_min={ymin},x_max={xmax},y_max={ymax}\n")
                 bb_file.write(f"{index_frame},{idx},{xmin},{ymin},{xmax},{ymax},{confidence}\n")
                 try:
                     # Initialize the variable that contains the zone where the bounding box is located in the current frame
@@ -408,7 +419,7 @@ with open("zone_transitions.txt", "w") as zones_file, \
  
         #Add space to bounding boxes file
         boxes_file.write(f"\n")
-        box_file.write(f"\n")
+    
  
         #Incremente the frame index
         index_frame += 1
