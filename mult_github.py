@@ -125,10 +125,6 @@ with open("video_paths.txt", "r") as file:
  
 for video_path in video_paths:
     video = cv.VideoCapture(video_path)
-    if not video.isOpened():
-        print(f"Error opening video file {video_path}")
-        Not_Launched_file.write(f"El programa no pudo leer el video : {video_path}\n")
-        continue
     # Replace the base part of the path
     relative_path = video_path.replace(base_path_to_replace, '').strip("\\")
     video_path = os.path.join(current_dir, relative_path)
@@ -188,6 +184,10 @@ for video_path in video_paths:
         open(bounding_boxes_CSV_path, "w") as bb_file, \
         open("Not_launched_videos.txt", "w") as Not_Launched_file, \
         open(botella_position_path, "w") as bottle_file:
+        if not video.isOpened():
+         print(f"Error opening video file {video_path}")
+         Not_Launched_file.write(f"El programa no pudo leer el video : {video_path}\n")
+         continue
         while cool is False:      
             # Get the frame located at the middle of the video
             middle_frame = extract_frame(video, middle_frame_index)
