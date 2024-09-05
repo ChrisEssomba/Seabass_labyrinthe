@@ -407,7 +407,7 @@ for video_path in video_paths:
                         threshold = fps/2
 
                         #I take into account the case where we have seabasses at the beginning of the video
-                        if confidence>=0.8: ###########PoSSIBLE NOISE CAUGHT
+                        if confidence>=0.74: ###########PoSSIBLE NOISE CAUGHT
                             if (current_zone not in zones_written) and current_zone!=0:
                                 zones_written[current_zone] = idx
                                 zones_file.write(f"{idx},{current_zone},{formatted_time}\n")
