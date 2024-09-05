@@ -123,8 +123,8 @@ video = cv.VideoCapture("L:\ENVIROBASS_NOE\TESTS\APRENDIZAJE\S_26_29_MAYO\S_26_2
 total_frames = int(video.get(cv.CAP_PROP_FRAME_COUNT))
  
 # Calculate the middle frame index
-#middle_frame_index = total_frames // 2 + 100
-middle_frame_index = 0
+middle_frame_index = total_frames // 2 + 100
+#middle_frame_index = 0
  
 #Initialize the dictionary that'll contain the id and the zone of the first seabass that will this one
 zones_written = {}
@@ -368,7 +368,7 @@ with open("zone_transitions.txt", "w") as zones_file, \
                     threshold = fps/2
 
                     #I take into account the case where we have seabasses at the beginning of the video
-                    if index_frame<=fps and confidence>=0.80:
+                    if index_frame<=fps and confidence>=0.75:
                         if (current_zone not in zones_written) and current_zone!=0:
                             zones_written[current_zone] = idx
                             zones_file.write(f"{idx},{current_zone},{formatted_time}\n")
