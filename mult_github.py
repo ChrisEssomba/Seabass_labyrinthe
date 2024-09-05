@@ -10,7 +10,7 @@ import gc
 # The function that calculates the angle of a line based on this coordinates
 def line_angle(x1, y1, x2, y2):
     return np.degrees(np.arctan2(y2 - y1, x2 - x1))
-  
+ 
 # The function that extract a certain frame from a video
 def extract_frame(video, frame_number):
     if not video.isOpened():
@@ -120,7 +120,7 @@ base_path_to_replace = "L:\\ENVIROBASS_NOE\\TESTS\\APRENDIZAJE"
 current_dir = os.getcwd()
  
 # Read video paths from links.txt
-with open("video_paths.txt", "r") as file:
+with open("video_paths_MAYO_D3.txt", "r") as file:
     video_paths = [line.strip() for line in file.readlines()]
  
 for video_path in video_paths:
@@ -146,8 +146,8 @@ for video_path in video_paths:
     total_frames = int(video.get(cv.CAP_PROP_FRAME_COUNT))
  
     # Calculate the middle frame index
-    #middle_frame_index = total_frames // 2 +100
-    middle_frame_index = 0
+    middle_frame_index = total_frames // 2 +100
+    #middle_frame_index = 0
     
     #Initialize the dictionary that'll contain the id and the zone of the first seabass that will this one
     zones_written = {}
@@ -178,6 +178,10 @@ for video_path in video_paths:
     bounding_boxes_path = os.path.join(video_dir, f"{video_name}_boundingBoxes.txt")
     botella_position_path = os.path.join(video_dir, f"{video_name}_botella.txt")
     bounding_boxes_CSV_path = os.path.join(video_dir, f"{video_name}_boundingBoxes_CSV.txt")
+    if not video.isOpened():
+        print(f"Error opening video file {video_path}")
+        Not_Launched_file.write(f"{video_path}\n")
+        continue
     with open(resultados_path, "w") as zones_file, \
         open(position_lineas_path, "w") as lines_file, \
         open(bounding_boxes_path, "w") as boxes_file, \
@@ -185,9 +189,9 @@ for video_path in video_paths:
         open("Not_launched_videos.txt", "w") as Not_Launched_file, \
         open(botella_position_path, "w") as bottle_file:
         if not video.isOpened():
-         print(f"Error opening video file {video_path}")
-         Not_Launched_file.write(f"El programa no pudo leer el video : {video_path}\n")
-         continue
+            print(f"Error opening video file {video_path}")
+            Not_Launched_file.write(f"El programa no pudo leer el video : {video_path}\n")
+            continue
         while cool is False:      
             # Get the frame located at the middle of the video
             middle_frame = extract_frame(video, middle_frame_index)
@@ -204,11 +208,16 @@ for video_path in video_paths:
  
             # Get the coordintates of the bottle from the middle frame
             position = detect_blue_cap(middle_frame, x1_tank, width)
-
+           
+            #I handle the case where the bottle first shows up
+            if position:
+                #Get the time the bottle shows up
+                time = middle_frame_index/fps
+                ftime = format_time(time)
+ 
             if len(delimitation_lines) !=4 or not position :
                 middle_frame_index+= 1
             else:
-
                 #write the lines positions
                 for index, line in delimitation_lines.iterrows():    
                     lines_file.write(f"Line {index}, Coordinates : ({line['x1']}, {line['y1']}, {line['x2']}, {line['y2']})\n")
@@ -221,9 +230,8 @@ for video_path in video_paths:
                 Not_Launched_file.write(f"El programa no ha encontrado la botella en el video : {video_path}\n")
                 print("Bottle not detected")
                 break
-       
    
-        #Know when the bottle is first seen
+        #Know where the bottle is first saw
         while bottle==False:
             middle_frame = extract_frame(video, middle_frame_index)
             position = detect_blue_cap(middle_frame, x1_tank, width)
@@ -233,17 +241,19 @@ for video_path in video_paths:
                 bottle=True
             else:
                 middle_frame_index-=fps
+            
             if middle_frame_index<0:
                 break
+        
         
         if cool:
             bottle_file.write(f"Coordenadas de la botella\n")
             bottle_file.write(f"xmin,ymin,xmax,ymax,time\n")
             bottle_file.write(f"{x_bottle},{y_bottle},{width_bottle+x_bottle},{height_bottle+y_bottle},{bottle_time}\n")
-            
+    
         angle = line_angle(x_bottle, y_bottle, width_bottle+x_bottle, height_bottle+y_bottle)
-        #print(angle)
-        
+        print(angle)
+    
         #Bottle coordinates
         x_min_bottle, y_min_bottle, x_max_bottle, y_max_bottle = x_bottle, y_bottle, x_bottle +width_bottle, y_bottle +height_bottle
         
@@ -270,7 +280,7 @@ for video_path in video_paths:
             time = (index_frame) / fps
             formatted_time = format_time(time)
             cv.putText(frame, f"Time : {formatted_time} ", (100,200), cv.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 10)
-            
+        
             # Get the frame's shape
             height, width, channels = frame.shape
         
@@ -282,9 +292,7 @@ for video_path in video_paths:
                 # Ensure frame sizes are consistent
                 if frame.shape != prev_frame.shape:
                     print(f"Frame size mismatch: {frame.shape} vs {prev_frame.shape}")
-                    # Load the YOLO model and video
-                    model = YOLO("C:/Users/GAMMA_43/Documents/lubinas/best.pt")
-                    model=model.to('cuda')
+                    model = YOLO("D:/FutureExpertData/Computervision/best.pt")
                     continue
     
         
@@ -311,7 +319,7 @@ for video_path in video_paths:
     
             # Write in a file the current index frame
             boxes_file.write(f"Frame {index_frame} \n")
-        
+    
     
             # Go through the variable that contains the bounding boxes while retrieving their ids, coordinates and confidence levels
             for idx, box in enumerate(boxes):
@@ -323,7 +331,7 @@ for video_path in video_paths:
                 xmin, ymin, xmax, ymax = box.xyxy[0].tolist()
                 xmin, ymin, xmax, ymax = int(xmin), int(ymin), int(xmax), int(ymax)
                 confidence = box.conf[0].item()
-                
+            
             
     
                 # Given that the bottle is supposed to be located in the middle of the tank, we attribute its value to the corresponding variable
@@ -334,7 +342,7 @@ for video_path in video_paths:
                 line2 = delimitation_lines['y1'].iloc[1]
                 line3 = delimitation_lines['y1'].iloc[2]
                 line4 = delimitation_lines['y1'].iloc[3]
-
+    
         
                 # To reduce the false positive observations we work only with the bounding boxes having a confidence level greater than 0.55
                 if confidence > 0.55:
@@ -347,7 +355,7 @@ for video_path in video_paths:
                         #x_tank = (x2_tank + x1_tank) / 2
     
                         # Handle the case where the bottle of food is located at the bottom of the tank
-                        if y_bottle > height / 2:   
+                        if y_bottle > height / 2:  
                                 y_center = ymin    
                         # We follow the logic according which, a zone is attributed to a bounding box if its center is located between two consecutives lines and on the same side than the opening that gives to this zone
                         # With some specificties for the zone 1 and 5
@@ -377,19 +385,19 @@ for video_path in video_paths:
                                     current_zone = 3
                                 elif ((y_center < line2 and y_center >= line1) and xmin > x_min_bottle) or (y_center<(line2+line1)/2 and y_center>=line1):
                                     current_zone = 4
-                                elif ((y_center < line1) and xmax < x_max_bottle) or (y_center < line1 + (line2-line1)/2) :
+                                elif ((y_center < line1+100) and xmax < x_max_bottle) or (y_center < line1+100 + (line2-line1)/2) :
                                     current_zone = 5
                                 else:
                                     current_zone=0
     
-                        
+                    
                         # Display the bounding box
                         cv.rectangle(frame, (int(xmin), int(ymin)), (int(xmax), int(ymax)), (0, 255, 0), 2)
                         cv.putText(frame, f'ID: {idx}, zone: {current_zone}', (int(xmin), int(ymin) - 10), cv.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 5)
-                        
-
-                        
-
+                    
+    
+                    
+    
     
                         # In a first dictionary (dic_zone) we associate each id with a zone and in a second dictionary (dic_occ) the same uid with its number of occurences in this zone
                         # Calculate the number of consecutive appearances of a bounding in a zone
@@ -405,14 +413,14 @@ for video_path in video_paths:
     
                         # Set a threshold
                         threshold = fps/2
-
+    
                         #I take into account the case where we have seabasses at the beginning of the video
-                        if confidence>=0.74: ###########PoSSIBLE NOISE CAUGHT
+                        if confidence>=0.72: ###########PoSSIBLE NOISE CAUGHT
                             if (current_zone not in zones_written) and current_zone!=0:
                                 zones_written[current_zone] = idx
                                 zones_file.write(f"{idx},{current_zone},{formatted_time}\n")
-
-
+    
+    
                         # Verify if the occurence of this bounding is greater or equal to the threshold
                         if dic_occ[idx] >= threshold and current_zone != 0:
                             #if (current_zone not in zones_written) and (current_zone == 1 or current_zone == list(zones_written.keys())[-1] + 1):
@@ -436,14 +444,14 @@ for video_path in video_paths:
     
             #Add space to bounding boxes file
             boxes_file.write(f"\n")
-
+    
     
             #Incremente the frame index
             index_frame += 1
     
             #Display the frame
             frame = cv.resize(frame, (880, 624))
-            #cv.imshow('Lines', frame)
+            cv.imshow('Lines', frame)
     
         
         
