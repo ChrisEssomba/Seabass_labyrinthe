@@ -377,7 +377,7 @@ for video_path in video_paths:
                                     current_zone = 3
                                 elif ((y_center < line2 and y_center >= line1) and xmin > x_min_bottle) or (y_center<(line2+line1)/2 and y_center>=line1):
                                     current_zone = 4
-                                elif ((y_center < line1+100) and xmax < x_max_bottle) or (y_center < line1+100 + (line2-line1)/2) :
+                                elif ((y_center < line1) and xmax < x_max_bottle) or (y_center < line1 + (line2-line1)/2) :
                                     current_zone = 5
                                 else:
                                     current_zone=0
