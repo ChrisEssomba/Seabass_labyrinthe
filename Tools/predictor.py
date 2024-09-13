@@ -1,4 +1,4 @@
-#D:/FutureExpertData/Computervision/video_predicted.mp4
+#Simple script to predict a video
 
 import cv2 as cv
 from ultralytics import YOLO
